@@ -1,5 +1,5 @@
 {
-  "name": "agentic_ai-finace-advisor_doc_v9_20251116",
+  "name": "agentic_ai-finace-advisor_v10_20251116",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,8 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react-dom": "^19.2.0",
-    "react": "^19.2.0"
+    "axios": "^1.13.2",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

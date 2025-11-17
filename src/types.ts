@@ -17,7 +17,7 @@ export interface DataHealth {
   latency: string;
 }
 
-export type ChatRole = 'Planner' | 'Price Verification' | 'Vector Retrieval' | 'Web Search' | 'Technical' | 'Macro' | 'Sentiment' | 'Writer' | 'Critic' | 'User' | 'Co-Pilot';
+export type ChatRole = 'User' | 'Co-Pilot' | 'Researcher' | 'Charting Agent' | 'Technical Analyst' | 'Quant Analyst' | 'Critic' | 'Writer' | 'Planner' | 'Price Verification' | 'Vector Retrieval' | 'Web Search' | 'Technical' | 'Macro' | 'Sentiment' | 'Final Synthesis';
 
 export interface Citation {
   uri: string;

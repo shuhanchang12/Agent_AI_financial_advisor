@@ -18,7 +18,7 @@ const App: React.FC = () => {
     };
   }, []);
 
-  const handleRunAnalysis = useCallback(async (ticker: string, query: string, file?: File) => {
+  const handleRunAnalysis = useCallback(async (ticker: string, query: string, file: File | null) => {
     if (!ticker || !query || isLoading) return;
 
     setIsLoading(true);
@@ -136,7 +136,7 @@ const App: React.FC = () => {
     };
     
     // --- Create CSV Content ---
-    const sanitizeForCSV = (text: string | number) => `"${String(text).replace(/"/g, '""')}"`;
+    const sanitizeForCSV = (text: any) => `"${String(text ?? '').replace(/"/g, '""')}"`;
     const chatRows = analysisDebate.map(m => [`Debate Message (${m.role})`, m.content]);
     
     const csvRows = [
@@ -156,7 +156,7 @@ const App: React.FC = () => {
     downloadFile(`analysis_dataset_${ticker.replace('/', '_')}.csv`, csvContent, 'text/csv;charset=utf-8;');
 
     // --- Create HTML Content ---
-    const formattedQuantReportHTML = quantStrategy.report
+    const formattedQuantReportHTML = String(quantStrategy.report ?? '')
         .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
         .replace(/\n/g, '<br />');
 

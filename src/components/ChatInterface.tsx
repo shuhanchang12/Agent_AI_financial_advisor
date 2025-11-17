@@ -14,9 +14,6 @@ const NewsIcon = () => (
 const DownloadIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
 );
-const UploadIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12" /></svg>
-);
 const SynthesizerIcon = () => (
      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
 );
@@ -48,7 +45,7 @@ const CoPilotIcon = () => (
 
 interface AnalysisInterfaceProps {
     reports: AnalysisReport[];
-    onRunAnalysis: (ticker: string, query: string, file?: File) => void;
+    onRunAnalysis: (ticker: string, query: string, file: File | null) => void;
     onDownloadPack: (report: AnalysisReport) => void;
     onApproveReport: (reportId: string) => void;
     onRecalculateStrategy: (reportId: string, params: QuantStrategy['params']) => Promise<void>;
@@ -420,7 +417,12 @@ const ReportCard: React.FC<ReportCardProps> = React.memo(({ report, onDownloadPa
     );
 });
 
-const SearchForm: React.FC<{ onRunAnalysis: (ticker: string, query: string, file?: File) => void; isLoading: boolean }> = ({ onRunAnalysis, isLoading }) => {
+interface SearchFormProps {
+    onRunAnalysis: (ticker: string, query: string, file: File | null) => void;
+    isLoading: boolean;
+}
+
+const SearchForm: React.FC<SearchFormProps> = ({ onRunAnalysis, isLoading }) => {
     const [ticker, setTicker] = useState('BTC/USD');
     const [query, setQuery] = useState('Provide a comprehensive analysis covering technical, macro, and sentiment aspects.');
     const [file, setFile] = useState<File | null>(null);
@@ -434,14 +436,14 @@ const SearchForm: React.FC<{ onRunAnalysis: (ticker: string, query: string, file
 
     const handleRemoveFile = () => {
         setFile(null);
-        if(fileInputRef.current) {
-            fileInputRef.current.value = "";
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ""; // Reset file input
         }
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onRunAnalysis(ticker, query, file ?? undefined);
+        onRunAnalysis(ticker, query, file);
     };
 
     return (
@@ -449,31 +451,6 @@ const SearchForm: React.FC<{ onRunAnalysis: (ticker: string, query: string, file
             <div className="flex flex-col md:flex-row items-start gap-4">
                  <LightbulbIcon />
                  <div className="flex-grow w-full space-y-4">
-                    <div>
-                        <label htmlFor="file-upload" className="text-sm font-medium text-gray-300 mb-1 block">
-                            RAG Document (Optional - for context)
-                        </label>
-                        {!file ? (
-                            <label className="relative cursor-pointer w-full bg-gray-900 text-gray-400 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus-within:ring-2 focus-within:ring-indigo-500 flex items-center justify-center hover:bg-gray-800 transition-colors">
-                                <UploadIcon />
-                                <span className="ml-2">Click to upload a financial report...</span>
-                                <input id="file-upload" type="file" className="sr-only" onChange={handleFileChange} ref={fileInputRef} accept=".pdf,.txt,.md,.csv" disabled={isLoading}/>
-                            </label>
-                        ) : (
-                            <div className="flex items-center justify-between w-full bg-gray-900 text-white border border-gray-600 rounded-md py-2 px-3">
-                                <span className="truncate text-sm" title={file.name}>{file.name}</span>
-                                <button
-                                    type="button"
-                                    onClick={handleRemoveFile}
-                                    className="ml-4 text-red-500 hover:text-red-400 font-bold text-lg leading-none"
-                                    aria-label="Remove file"
-                                    disabled={isLoading}
-                                >
-                                    &times;
-                                </button>
-                            </div>
-                        )}
-                    </div>
                     <div>
                         <label htmlFor="ticker-input" className="text-sm font-medium text-gray-300 mb-1 block">Ticker</label>
                         <input
@@ -496,6 +473,41 @@ const SearchForm: React.FC<{ onRunAnalysis: (ticker: string, query: string, file
                             className="w-full bg-gray-900 text-white placeholder-gray-500 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 h-24"
                             disabled={isLoading}
                         />
+                    </div>
+                     <div>
+                        <label htmlFor="file-upload" className="text-sm font-medium text-gray-300 mb-1 block">RAG Document (Optional)</label>
+                        <div className="flex items-center gap-2">
+                            <input
+                                id="file-upload-input"
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleFileChange}
+                                className="hidden"
+                                disabled={isLoading}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={isLoading}
+                                className="flex-shrink-0 bg-gray-700 hover:bg-gray-600 text-gray-300 font-bold py-2 px-4 rounded-md transition duration-200 text-sm"
+                            >
+                                Upload File
+                            </button>
+                            {file && (
+                                <div className="flex-grow flex items-center gap-2 bg-gray-900 border border-gray-600 rounded-md px-3 py-1.5 text-sm min-w-0">
+                                    <span className="text-gray-300 truncate" title={file.name}>{file.name}</span>
+                                    <button
+                                        type="button"
+                                        onClick={handleRemoveFile}
+                                        className="text-gray-500 hover:text-white flex-shrink-0"
+                                        title="Remove file"
+                                        aria-label="Remove file"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
                  </div>
                 <div className="w-full md:w-auto self-end">
