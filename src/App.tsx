@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { AnalysisReport, ChatMessage, ChatRole, QuantStrategy } from './types';
 import * as backendService from './services/geminiService'; // Re-purposed to be the backend service client
 import { AnalysisInterface } from './components/ChatInterface';
+import { MarketHeader } from './components/MarketHeader';
 
 const App: React.FC = () => {
   const [reports, setReports] = useState<AnalysisReport[]>([]);
@@ -279,12 +280,13 @@ const App: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen text-white font-sans">
+      <MarketHeader />
       <header className="flex-shrink-0 text-center p-4">
         <h1 className="text-4xl font-bold">AI Trading Co-Pilot</h1>
         <p className="text-md text-gray-400">Production-Grade Multi-Agent System with LangGraph, RAG, and Human-in-the-Loop</p>
       </header>
 
-      <main className="flex-grow flex flex-col mx-auto w-full max-w-7xl p-4 overflow-hidden">
+      <main className="flex-grow flex flex-col mx-auto w-full max-w-7xl p-4 overflow-hidden pt-10">
          {error && (
             <div className="bg-red-800/50 border border-red-600 text-red-200 px-4 py-3 rounded-lg relative mb-4" role="alert">
                 <strong className="font-bold">Error: </strong>
