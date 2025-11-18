@@ -1,0 +1,28 @@
+# Render Configuration - Backend Deployment
+# Save this as render.yaml in root directory
+
+services:
+  - type: web
+    name: financial-advisor-backend
+    runtime: docker
+    region: oregon
+    plan: free
+    healthCheckPath: /docs
+    autoDeploy: true
+    dockerfilePath: Dockerfile.backend
+    ports:
+      - port: 8000
+        protocol: HTTP
+    envVars:
+      - key: LANGFUSE_SECRET_KEY
+        scope: RUN,BUILD
+        sync: false
+      - key: LANGFUSE_PUBLIC_KEY
+        scope: RUN,BUILD
+        sync: false
+      - key: TAVILY_API_KEY
+        scope: RUN,BUILD
+        sync: false
+      - key: OPENAI_API_KEY
+        scope: RUN,BUILD
+        sync: false
