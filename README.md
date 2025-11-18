@@ -1,127 +1,116 @@
-# Multi-Agent Financial Research & Analysis System
+# 📊 Multi-Agent Financial Research & Analysis — README
 
-A comprehensive multi-agent AI system for financial research that **fully meets all course requirements** including:
+This repository contains a production-oriented multi-agent system for financial research and analysis. The system combines a TypeScript React frontend with a Python backend that uses LangGraph to orchestrate multiple specialized AI agents. It includes vector retrieval (Chroma), real-time web search (Tavily), human-in-the-loop approval, persistent state via SQLite, and observability through Langfuse.
 
-- ✅ Multi-agent workflow with LangGraph
-- ✅ Vector database (Chroma) with RAG
-- ✅ External search tool (Tavily API)
-- ✅ Human-in-the-loop approval workflow
-- ✅ SQLite persistence across sessions
-- ✅ Langfuse monitoring and observability
-- ✅ Dynamic routing logic between agents
+## 📚 Table of Contents
 
-This project combines a **React/TypeScript frontend** with a **Python LangGraph backend** to deliver production-ready financial analysis powered by multiple specialized AI agents.
+- [Features](#features)
+- [Architecture](#architecture)
+- [Quickstart](#quickstart)
+- [Project Layout](#project-layout)
+- [Observability & Persistence](#observability--persistence)
+- [Notes](#notes)
+- [License](#license)
 
-## 🎯 Project Overview
+Key highlights:
 
-This project implements an advanced multi-agent workflow system combining a React frontend with a Python LangGraph backend.
+- Multi-agent workflow driven by LangGraph
+- Retrieval-Augmented Generation (RAG) with Chroma vector database
+- External web search using the Tavily API (with citations)
+- Human-in-the-loop review and approval nodes
+- Session/state persistence via SQLite
+- Monitoring and tracing via Langfuse
 
-### ✅ Core Features Implemented
+<a id="features"></a>
+## 🧩 Features
 
-- **Multi-agent Workflow**: A team of 9 specialized AI agents collaborate using LangGraph:
+- Planner Agent: analyzes incoming queries and builds a research plan.
+- Retrieval Agent: semantic search against the Chroma knowledge base.
+- Web Search Agent: fetches up-to-date information using Tavily.
+- Technical, Macro, and Sentiment Analysts: produce specialized insights.
+- Writer Agent and Critic Agent: synthesize and refine final reports.
+- Human Review Node: pauses workflow for human approval before finalizing.
+- Langfuse integration for observability (traces, spans, metrics).
 
-  1. **Planner Agent**: Analyzes queries and creates research plans
-  2. **Vector Retrieval Agent**: Searches internal knowledge base (Chroma DB)
-  3. **Web Search Agent**: Fetches real-time data via Tavily API
-  4. **Technical Analyst**: Analyzes price action, indicators, and chart patterns
-  5. **Macro Analyst**: Evaluates economic indicators and policy impacts
-  6. **Sentiment Analyst**: Assesses market sentiment from news and social trends
-  7. **Writer Agent**: Synthesizes all analysis into comprehensive reports
-  8. **Critic Agent**: Reviews and improves report quality
-  9. **Human Review Node**: Implements human-in-the-loop approval workflow
-- **Vector Database (RAG)**: Chroma DB with financial knowledge base for semantic search and retrieval
-- **External Search Tool**: Tavily API integration for real-time web search with citations
-- **Human-in-the-Loop Approval**: Reports pause at review checkpoint for human approval before finalization
-- **State Persistence**: SQLite database with SqliteSaver stores complete workflow state for recovery
-- **Langfuse Monitoring**: Complete observability with traces, spans, and performance metrics
-- **Dynamic Routing**: LangGraph conditional edges route between agents based on query analysis
+<a id="architecture"></a>
+## 🏗️ Architecture — Boxed Workflow Diagram
 
-## 🏗️ Architecture & Workflow
-
-The system uses LangGraph for sophisticated multi-agent orchestration with dynamic routing.
+The diagram below uses square boxes to show the main program workflow and side services.
 
 ```
-User Input (Ticker + Query)
-           ↓
-┌─────────────────────┐
-│   Planner Agent     │ ← Analyzes query, creates plan, determines routing
-└──────────┬──────────┘
-           ↓
-      [ Router ]
-           ↓
-   ┌───────┴────────┐
-   ↓                ↓
-┌─────────┐    ┌─────────┐
-│Vector DB│    │   Web   │
-│(Chroma) │    │ Search  │
-│         │    │(Tavily) │
-└────┬────┘    └────┬────┘
-     └──────┬───────┘
-            ↓
-┌──────────────────────────┐
-│   Analysis Phase         │
-│  (Sequential Pipeline)   │
-│                          │
-│  Technical Analyst  →    │
-│  Macro Analyst      →    │
-│  Sentiment Analyst       │
-└──────────┬───────────────┘
-           ↓
-┌──────────────────────────┐
-│   Synthesis Phase        │
-│                          │
-│  Writer Agent       →    │
-│  Critic Agent            │
-└──────────┬───────────────┘
-           ↓
-┌──────────────────────────┐
-│   Human Review Node ⏸️   │ ← Pause for approval
-└──────────┬───────────────┘
-           ↓
-      [Approved ✅]
-           ↓
-   [SQLite Storage]
-           ↓
-  [Langfuse Monitoring]
++------------------------------+
+| Frontend (React / TypeScript) 🖥️ |
++------------------------------+
+		 |
+		 v
++------------------------------+
+| Backend API (FastAPI) ⚙️     |
++------------------------------+
+		 |
+		 v
++------------------------------+
+| LangGraph Orchestrator 🔁     |
++------------------------------+
+	|            |           
+	v            v           v
++-------------+ +-------------+ +-------------+
+| Retrieval   | | Web Search  | | Analysis    |
+| (Chroma) 🔍 | | (Tavily) 🌐 | | Agents 🧠   |
++-------------+ +-------------+ +-------------+
+			 |
+			 v
++------------------------------+
+| Writer ✍️  -> Critic 🛡️      |
++------------------------------+
+		 |
+		 v
++------------------------------+
+| Human Review (pause & action) 👥 |
++------------------------------+
+		 |
+		 v
++------------------------------+
+| Persist (SQLite) 💾          |
++------------------------------+
+
+Side services: Langfuse (observability) 📊, Logs 📝
 ```
 
-## 🚀 Getting Started
+If you prefer, I can also add a Mermaid diagram or generate a PNG/SVG version of this boxed diagram and include it in the repo.
 
-This is a full-stack application with Python backend and React frontend.
+<a id="quickstart"></a>
+## 🚀 Quickstart
 
-### Prerequisites
+Prerequisites:
 
-- Python 3.9 or higher
-- Node.js 18 or higher
-- API Keys (all have free tiers):
-  - OpenAI API key (https://platform.openai.com/api-keys)
-  - Tavily API key (https://tavily.com)
-  - Langfuse account (https://langfuse.com)
+- Python 3.9+
+- Node.js 18+
+- API keys: OpenAI, Tavily, Langfuse (optional for telemetry)
 
-### Installation
-
-1. **Clone the repository**
+1. Clone the repository
 
 ```bash
 git clone https://github.com/shuhanchang12/Agent_AI_financial_advisor.git
-cd Agent_AI_financial_advisor
+cd Agent_AI_financial_advisor/final_ai_trading_copilot
 ```
 
-2. **Install Python dependencies**
+2. Install backend dependencies
 
 ```bash
+cd backend
 pip install -r requirements.txt
 ```
 
-3. **Install Node.js dependencies**
+3. Install frontend dependencies
 
 ```bash
+cd ../
 npm install
 ```
 
-4. **Configure API keys**
+4. Add environment variables
 
-Create `backend/.env` file:
+Create `backend/.env` (or set system env variables):
 
 ```env
 OPENAI_API_KEY=your_openai_api_key
@@ -131,64 +120,102 @@ LANGFUSE_SECRET_KEY=your_langfuse_secret_key
 LANGFUSE_HOST=https://cloud.langfuse.com
 ```
 
-5. **Initialize the system**
+5. Initialize (if applicable)
 
 ```bash
-python3 init_system.py
+python3 backend/init_system.py
 ```
 
-### Running the Application
+6. Start services
 
-**Option 1: Quick Start (Recommended)**
-
-```bash
-chmod +x start.sh
-./start.sh
-```
-
-**Option 2: Manual Start**
-
-Terminal 1 - Backend:
+Backend (API):
 
 ```bash
 cd backend
 python3 main.py
 ```
 
-Terminal 2 - Frontend:
+Frontend (development server):
 
 ```bash
+cd ../
 npm run dev
 ```
 
-**Access Points:**
+Default access points:
 
-- Frontend UI: http://localhost:3000
+- Frontend: http://localhost:3000
 - Backend API: http://localhost:8000
-- API Documentation: http://localhost:8000/docs
-- Langfuse Dashboard: https://cloud.langfuse.com
+- API docs (FastAPI): http://localhost:8000/docs
 
-## 🔧 Technologies Used
+<a id="project-layout"></a>
+## 🗂️ Project Layout
 
-### Backend
+- `backend/` — Python backend (FastAPI, LangGraph orchestration, agents)
+- `src/` — React + TypeScript frontend
+- `package.json`, `vite.config.ts` — frontend build configuration
+- `Dockerfile.*`, `docker-compose.yml` — containerization and deployment
 
-- **Python 3.9+**: Core language
-- **FastAPI**: Web framework
-- **LangChain**: LLM orchestration
-- **LangGraph**: Multi-agent workflow engine
-- **Chroma**: Vector database
-- **Tavily**: Web search API
-- **Langfuse**: Observability platform
-- **SQLite**: State persistence
+### Project Structure (current folder tree)
 
-### Frontend
+```
+final_ai_trading_copilot/
+├─ .dockerignore
+├─ .gitignore
+├─ DEPLOYMENT_GUIDE.md
+├─ Dockerfile.backend
+├─ Dockerfile.frontend
+├─ PRESENTATION_10MIN_3PEOPLE.md
+├─ Proof Alpha Vantage API Connexion (Stock Price).png
+├─ Proof Back end Deployment.png
+├─ Proof Front end Deployment.png
+├─ Proof LangFuse.mov
+├─ Proof UI.mov
+├─ README.docx
+├─ README.md
+├─ backend/
+│  ├─ agent.py
+│  ├─ main.py
+│  └─ requirements.txt
+├─ docker-compose.yml
+├─ index.css
+├─ index.html
+├─ package-lock.json
+├─ package.json
+├─ render.yaml
+├─ src/
+│  ├─ App.tsx
+│  ├─ components/
+│  │  ├─ ChatInterface.tsx
+│  │  └─ MarketHeader.tsx
+│  ├─ index.css
+│  ├─ index.tsx
+│  ├─ services/
+│  │  └─ geminiService.ts
+│  └─ types.ts
+├─ tsconfig.json
+├─ vercel.json
+└─ vite.config.ts
+```
 
-- **React 19**: UI framework
-- **TypeScript**: Type safety
-- **Vite**: Build tool
-- **TailwindCSS**: Styling
+This tree reflects the repository contents in the `final_ai_trading_copilot` folder at the time of editing. Let me know if you want this expanded to include file descriptions or links to key files.
 
-### AI/ML
+<a id="observability--persistence"></a>
+## 🔍💾 Observability & Persistence
 
-- **OpenAI GPT-4**: Language model
-- **OpenAI Embeddings**: Vector embeddings
+- State is stored in SQLite for session persistence and reproducibility.
+- Langfuse is used to collect traces and metrics for each agent execution.
+
+<a id="notes"></a>
+## ℹ️ Notes
+
+- Tavily provides web search results and citations. Be mindful of rate limits and API usage quotas.
+- Langfuse keys are optional but recommended for production observability.
+
+<a id="license"></a>
+## 📜 License
+
+This project is provided for academic and demonstration purposes. Review the original repository license for reuse terms.
+
+---
+If you need the README tailored for a specific audience (developer, instructor, or deployer), tell me which audience and I'll produce a variant.
